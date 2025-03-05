@@ -1,0 +1,131 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
+      home: TodoApp(),
+    );
+  }
+}
+
+class TodoApp extends StatefulWidget {
+  const TodoApp({super.key});
+
+  @override
+  State<TodoApp> createState() => _TodoAppState();
+}
+
+class _TodoAppState extends State<TodoApp> {
+  List<Map<String, dynamic>> todos = [];
+
+  final todoController = TextEditingController();
+
+  @override
+  void dispose() {
+    todoController.dispose();
+    super.dispose();
+  }
+
+  void showBottomDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Add Todo"),
+          content: TextFormField(
+            controller: todoController,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: "title",
+              labelText: "title",
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                addTodo();
+              },
+              child: Text("Add"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void addTodo() {
+    final todo = {"title": todoController.text, "completed": false};
+    setState(() {
+      todos.add(todo);
+    });
+  }
+
+  void updateTodo(int id) {
+    setState(() {
+      todos.elementAt(id)["completed"] = !todos.elementAt(id)["completed"];
+    });
+  }
+
+  void deleteTodo(int id) {
+    setState(() {
+      todos.removeAt(id);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Todo App")),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: ListView.builder(
+          itemCount: todos.length,
+          itemBuilder: (context, index) {
+            final todo = todos[index];
+            return Card(
+              child: ListTile(
+                leading: IconButton(
+                  icon: Icon(Icons.radio_button_checked, color: (todo["completed"]) ? Colors.green : Colors.grey,),
+                  onPressed: () => updateTodo(index),
+                ),
+                title: Text(
+                  todo["title"],
+                  style: TextStyle(
+                    decoration:
+                        (todo["completed"])
+                            ? TextDecoration.lineThrough
+                            : TextDecoration.none,
+                  ),
+                ),
+                trailing: IconButton(icon: Icon(Icons.delete, color: Colors.red), onPressed: () => deleteTodo(index),),
+              ),
+            );
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showBottomDialog();
+        },
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+}
