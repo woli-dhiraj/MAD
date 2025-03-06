@@ -6,66 +6,66 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter FlutterLayout',
+      title: 'Flutter Layout Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home:FlutterLayout(),
+      home: FlutterLayout(),
     );
   }
 }
 
 class FlutterLayout extends StatelessWidget {
-   FlutterLayout({super.key});
+  FlutterLayout({super.key});
 
-  final List<Map<String,dynamic>> layout=[
-    {'title':'Column','widget':ColumnLayout()},
-    {'title':'Row','widget':RowLayout()},
-    {'title':'Grid','widget':GridLayout()},
-    {'title':'Stack','widget':StackLayout()},
-   ];
+  final List<Map<String, dynamic>> layout = [
+    {'title': 'Column', 'widget': ColumnLayout()},
+    {'title': 'Row', 'widget': RowLayout()},
+    {'title': 'Grid', 'widget': GridLayout()},
+    {'title': 'Stack', 'widget': StackLayout()},
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Flutter layout"),
-      ),
+      appBar: AppBar(title: const Text("Flutter Layouts")),
       body: ListView.builder(
         itemCount: layout.length,
-        itemBuilder: (context,index){
+        itemBuilder: (context, index) {
           return ListTile(
             title: Text(layout[index]['title']),
-            trailing: Icon(Icons.arrow_forward),
-            onTap: (){
+            trailing: const Icon(Icons.arrow_forward),
+            onTap: () {
               Navigator.push(
-                context, 
+                context,
                 MaterialPageRoute(
-                  builder: (context)=>layout[index]['widget']));
+                  builder: (context) => layout[index]['widget'],
+                ),
+              );
             },
           );
-        }),
+        },
+      ),
     );
-    
   }
 }
 
 class ColumnLayout extends StatelessWidget {
-  ColumnLayout ({super.key});
+  ColumnLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Column layout"),
-      ),
-      body:Column(
-        children: [
-          Text("P1"),
-          Text("P2")
+      appBar: AppBar(title: const Text("Column Layout")),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Padding(padding: EdgeInsets.all(8.0), child: Text("P1")),
+          Padding(padding: EdgeInsets.all(8.0), child: Text("P2")),
         ],
       ),
     );
@@ -73,72 +73,67 @@ class ColumnLayout extends StatelessWidget {
 }
 
 class RowLayout extends StatelessWidget {
-  RowLayout ({super.key});
+  RowLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Row layout"),
-      ),
-      body:Row(
-        children: [
-          Text("P1"),
-          Text("P2")
-        ],
+      appBar: AppBar(title: const Text("Row Layout")),
+      body: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Padding(padding: EdgeInsets.all(8.0), child: Text("P1")),
+            Padding(padding: EdgeInsets.all(8.0), child: Text("P2")),
+          ],
+        ),
       ),
     );
   }
 }
 
 class GridLayout extends StatelessWidget {
-  GridLayout ({super.key});
+  GridLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Column layout"),
+      appBar: AppBar(title: const Text("Grid Layout")), // FIXED TITLE
+      body: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 2,
+        ),
+        itemCount: 10, // ADDED ITEM COUNT
+        itemBuilder: (context, index) {
+          return Card(
+            color: Colors.amberAccent,
+            margin: const EdgeInsets.all(8.0),
+            child: Center(child: Text("Item $index")),
+          );
+        },
       ),
-      body:GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2), 
-        itemBuilder: (context,index){
-          return GridTile(
-            child: Text("Items $index"));
-        })
     );
   }
 }
 
 class StackLayout extends StatelessWidget {
-  StackLayout ({super.key});
+  StackLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Stack layout"),
-      ),
-      body:Stack(
-        alignment: Alignment.center,
-        children: [
-          Container(
-            height: 200,
-            width: 200,
-            color: Colors.pinkAccent,
-          ),
-          Container(
-            height: 150,
-            width: 150,
-            color: Colors.yellowAccent,
-          ),
-          Container(
-            height: 100,
-            width: 100,
-            color: Colors.greenAccent,
-          ),
-        ],
-      )
-    );
-  }
+      appBar: AppBar(title: const Text("Stack Layout")),
+      body: Center(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(height: 200, width: 200, color: Colors.pinkAccent),
+            Container(height: 150, width: 150, color: Colors.yellowAccent),
+            Container(height: 100, width: 100, color: Colors.greenAccent),
+          ],
+        ),
+  ),
+);
+}
 }

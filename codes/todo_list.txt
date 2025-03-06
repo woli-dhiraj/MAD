@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: TodoApp(),
+      home: const TodoApp(),
     );
   }
 }
@@ -28,7 +28,6 @@ class TodoApp extends StatefulWidget {
 
 class _TodoAppState extends State<TodoApp> {
   List<Map<String, dynamic>> todos = [];
-
   final todoController = TextEditingController();
 
   @override
@@ -42,13 +41,13 @@ class _TodoAppState extends State<TodoApp> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Add Todo"),
+          title: const Text("Add Todo"),
           content: TextFormField(
             controller: todoController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               border: OutlineInputBorder(),
-              hintText: "title",
-              labelText: "title",
+              hintText: "Title",
+              labelText: "Title",
             ),
           ),
           actions: [
@@ -56,13 +55,13 @@ class _TodoAppState extends State<TodoApp> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
             ),
             ElevatedButton(
               onPressed: () {
                 addTodo();
               },
-              child: Text("Add"),
+              child: const Text("Add"),
             ),
           ],
         );
@@ -71,15 +70,19 @@ class _TodoAppState extends State<TodoApp> {
   }
 
   void addTodo() {
-    final todo = {"title": todoController.text, "completed": false};
-    setState(() {
-      todos.add(todo);
-    });
+    final todoText = todoController.text.trim();
+    if (todoText.isNotEmpty) {
+      setState(() {
+        todos.add({"title": todoText, "completed": false});
+      });
+      todoController.clear();
+      Navigator.pop(context); 
+    }
   }
 
   void updateTodo(int id) {
     setState(() {
-      todos.elementAt(id)["completed"] = !todos.elementAt(id)["completed"];
+      todos[id]["completed"] = !todos[id]["completed"];
     });
   }
 
@@ -92,9 +95,9 @@ class _TodoAppState extends State<TodoApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Todo App")),
+      appBar: AppBar(title: const Text("Todo App")),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: ListView.builder(
           itemCount: todos.length,
           itemBuilder: (context, index) {
@@ -102,30 +105,35 @@ class _TodoAppState extends State<TodoApp> {
             return Card(
               child: ListTile(
                 leading: IconButton(
-                  icon: Icon(Icons.radio_button_checked, color: (todo["completed"]) ? Colors.green : Colors.grey,),
+                  icon: Icon(
+                    todo["completed"]
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_unchecked,
+                    color: todo["completed"] ? Colors.green : Colors.grey,
+                  ),
                   onPressed: () => updateTodo(index),
                 ),
                 title: Text(
                   todo["title"],
                   style: TextStyle(
-                    decoration:
-                        (todo["completed"])
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none,
+                    decoration: todo["completed"]
+                        ? TextDecoration.lineThrough
+                        : TextDecoration.none,
                   ),
                 ),
-                trailing: IconButton(icon: Icon(Icons.delete, color: Colors.red), onPressed: () => deleteTodo(index),),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => deleteTodo(index),
+                ),
               ),
             );
           },
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showBottomDialog();
-        },
-        child: Icon(Icons.add),
-      ),
-    );
-  }
+        onPressed: showBottomDialog,
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
 }
