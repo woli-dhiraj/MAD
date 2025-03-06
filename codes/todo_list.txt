@@ -10,11 +10,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Todo List',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
       ),
-      home: TodoApp(),
+      home: const TodoApp(),
     );
   }
 }
@@ -27,39 +29,60 @@ class TodoApp extends StatefulWidget {
 }
 
 class _TodoAppState extends State<TodoApp> {
-  List<Map<String, dynamic>> todos = [];
-  final todoController = TextEditingController();
+  List<Map<String, dynamic>> tasks = [];
+  int _selectedIndex = 0;
+  final TextEditingController controller = TextEditingController();
 
   @override
   void dispose() {
-    todoController.dispose();
+    controller.dispose();
     super.dispose();
   }
 
-  void showBottomDialog() {
+  void addTask() {
+    if (controller.text.isNotEmpty) {
+      setState(() {
+        tasks.add({"title": controller.text, "completed": false});
+      });
+    }
+    controller.clear();
+    Navigator.pop(context);
+  }
+
+  void toggleTask(int index) {
+    setState(() {
+      tasks[index]["completed"] = !tasks[index]["completed"];
+    });
+  }
+
+  void deleteTask(int index) {
+    setState(() {
+      tasks.removeAt(index);
+    });
+  }
+
+  void showAddTaskDialog() {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Add Todo"),
-          content: TextFormField(
-            controller: todoController,
+          title: Text("Add New Task:"),
+          content: TextField(
+            controller: controller,
             decoration: InputDecoration(
               border: OutlineInputBorder(),
-              hintText: "Enter title",
-              labelText: "Title",
+              hintText: "Add Task",
             ),
           ),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
-                todoController.clear(); // Clear input when closing
+                controller.clear();
               },
               child: Text("Cancel"),
             ),
             ElevatedButton(
-              onPressed: addTodo,
+              onPressed: addTask,
               child: Text("Add"),
             ),
           ],
@@ -68,76 +91,98 @@ class _TodoAppState extends State<TodoApp> {
     );
   }
 
-  void addTodo() {
-    if (todoController.text.trim().isEmpty) return; // Prevent empty todos
-
-    final todo = {"title": todoController.text, "completed": false};
-
-    setState(() {
-      todos.add(todo);
-    });
-
-    todoController.clear(); // Clear input field
-    Navigator.pop(context); // Close the dialog
-  }
-
-  void updateTodo(int id) {
-    setState(() {
-      todos[id]["completed"] = !todos[id]["completed"];
-    });
-  }
-
-  void deleteTodo(int id) {
-    setState(() {
-      todos.removeAt(id);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Todo App")),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: todos.isEmpty
-            ? Center(child: Text("No todos yet, add some!"))
-            : ListView.builder(
-                itemCount: todos.length,
-                itemBuilder: (context, index) {
-                  final todo = todos[index];
-                  return Card(
-                    child: ListTile(
-                      leading: IconButton(
-                        icon: Icon(
-                          todo["completed"]
-                              ? Icons.check_circle
-                              : Icons.radio_button_unchecked,
-                          color: todo["completed"] ? Colors.green : Colors.grey,
-                        ),
-                        onPressed: () => updateTodo(index),
-                      ),
-                      title: Text(
-                        todo["title"],
-                        style: TextStyle(
-                          fontSize: 16,
-                          decoration: todo["completed"]
-                              ? TextDecoration.lineThrough
-                              : TextDecoration.none,
-                        ),
-                      ),
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => deleteTodo(index),
-                      ),
-                    ),
-                  );
-                },
-              ),
+      appBar: AppBar(
+        title: Text("Todo App"),
       ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.all(3.0),
+          children: [
+            DrawerHeader(
+              child: Text("Menu"),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text("Home"),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text("Settings"),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+      body: (_selectedIndex == 0)
+          ? (tasks.isEmpty)
+              ? Center(
+                  child: Text("No tasks Yet! Add a new Task"),
+                )
+              : ListView.builder(
+                  itemCount: tasks.length,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      child: ListTile(
+                        leading: IconButton(
+                          onPressed: () {
+                            toggleTask(index);
+                          },
+                          icon: Icon(
+                            (tasks[index]["completed"])
+                                ? Icons.check_circle
+                                : Icons.radio_button_unchecked,
+                            color: tasks[index]["completed"]
+                                ? Colors.green
+                                : Colors.grey,
+                          ),
+                        ),
+                        title: Text(
+                          tasks[index]["title"],
+                          style: TextStyle(
+                              decoration: tasks[index]["completed"]
+                                  ? TextDecoration.lineThrough
+                                  : TextDecoration.none),
+                        ),
+                        trailing: IconButton(
+                          onPressed: () {
+                            deleteTask(index);
+                          },
+                          icon: Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                )
+          : Center(
+              child: Text("Settings Page"),
+            ),
       floatingActionButton: FloatingActionButton(
-        onPressed: showBottomDialog,
+        onPressed: showAddTaskDialog,
         child: Icon(Icons.add),
-  ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.list), label: "Tasks"),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings")
+        ],
+        currentIndex: _selectedIndex,
+        onTap: (value) {
+          setState(() {
+            _selectedIndex = value;
+          });
+        },
+      ),
 );
 }
 }
