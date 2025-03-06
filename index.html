@@ -11,22 +11,41 @@
             text-align: center;
             margin: 50px;
         }
-        button {
-            display: block;
-            width: 200px;
-            margin: 10px auto;
-            padding: 10px;
-            font-size: 16px;
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .letter {
+            font-size: 24px;
+            font-weight: bold;
             cursor: pointer;
+            padding: 10px;
+            margin: 5px 0;
+            width: 30px;
+            text-align: center;
+            background-color: lightgray;
+            border-radius: 5px;
+        }
+        .letter:hover {
+            background-color: gray;
+            color: white;
         }
     </style>
 </head>
 <body>
-    <button onclick="copyCode('layout')">L</button>
-    <button onclick="copyCode('todo_list')">T</button>
-    <button onclick="copyCode('image_carousel')">I</button>
-    <button onclick="copyCode('animation')">A</button>
-    <button onclick="copyCode('form')">F</button>
+
+    <div class="container">
+        <div class="letter" onclick="copyCode('layout')">L</div>
+        <div class="letter" onclick="copyCode('todo_list')">T</div>
+        <div class="letter" onclick="copyCode('image_carousel')">I</div>
+        <div class="letter" onclick="copyCode('animation')">A</div>
+        <div class="letter" onclick="copyCode('form')">F</div>
+    </div>
 
     <script src="main.js"></script>
 </body>
