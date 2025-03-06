@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const TodoApp(),
+      home: TodoApp(),
     );
   }
 }
@@ -41,12 +41,12 @@ class _TodoAppState extends State<TodoApp> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Add Todo"),
+          title: Text("Add Todo"),
           content: TextFormField(
             controller: todoController,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               border: OutlineInputBorder(),
-              hintText: "Title",
+              hintText: "Enter title",
               labelText: "Title",
             ),
           ),
@@ -54,14 +54,13 @@ class _TodoAppState extends State<TodoApp> {
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
+                todoController.clear(); // Clear input when closing
               },
-              child: const Text("Cancel"),
+              child: Text("Cancel"),
             ),
             ElevatedButton(
-              onPressed: () {
-                addTodo();
-              },
-              child: const Text("Add"),
+              onPressed: addTodo,
+              child: Text("Add"),
             ),
           ],
         );
@@ -70,14 +69,16 @@ class _TodoAppState extends State<TodoApp> {
   }
 
   void addTodo() {
-    final todoText = todoController.text.trim();
-    if (todoText.isNotEmpty) {
-      setState(() {
-        todos.add({"title": todoText, "completed": false});
-      });
-      todoController.clear();
-      Navigator.pop(context); 
-    }
+    if (todoController.text.trim().isEmpty) return; // Prevent empty todos
+
+    final todo = {"title": todoController.text, "completed": false};
+
+    setState(() {
+      todos.add(todo);
+    });
+
+    todoController.clear(); // Clear input field
+    Navigator.pop(context); // Close the dialog
   }
 
   void updateTodo(int id) {
@@ -95,45 +96,48 @@ class _TodoAppState extends State<TodoApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Todo App")),
+      appBar: AppBar(title: Text("Todo App")),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: todos.length,
-          itemBuilder: (context, index) {
-            final todo = todos[index];
-            return Card(
-              child: ListTile(
-                leading: IconButton(
-                  icon: Icon(
-                    todo["completed"]
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_unchecked,
-                    color: todo["completed"] ? Colors.green : Colors.grey,
-                  ),
-                  onPressed: () => updateTodo(index),
-                ),
-                title: Text(
-                  todo["title"],
-                  style: TextStyle(
-                    decoration: todo["completed"]
-                        ? TextDecoration.lineThrough
-                        : TextDecoration.none,
-                  ),
-                ),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => deleteTodo(index),
-                ),
+        padding: EdgeInsets.all(16.0),
+        child: todos.isEmpty
+            ? Center(child: Text("No todos yet, add some!"))
+            : ListView.builder(
+                itemCount: todos.length,
+                itemBuilder: (context, index) {
+                  final todo = todos[index];
+                  return Card(
+                    child: ListTile(
+                      leading: IconButton(
+                        icon: Icon(
+                          todo["completed"]
+                              ? Icons.check_circle
+                              : Icons.radio_button_unchecked,
+                          color: todo["completed"] ? Colors.green : Colors.grey,
+                        ),
+                        onPressed: () => updateTodo(index),
+                      ),
+                      title: Text(
+                        todo["title"],
+                        style: TextStyle(
+                          fontSize: 16,
+                          decoration: todo["completed"]
+                              ? TextDecoration.lineThrough
+                              : TextDecoration.none,
+                        ),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => deleteTodo(index),
+                      ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
-        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: showBottomDialog,
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
+        child: Icon(Icons.add),
+  ),
+);
+}
 }
